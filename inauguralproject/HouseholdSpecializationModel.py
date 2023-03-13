@@ -8,7 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 class HouseholdSpecializationModelClass:
-
+    #function that is called when the class is activated
     def __init__(self):
         """ setup model """
 
@@ -43,7 +43,7 @@ class HouseholdSpecializationModelClass:
 
         sol.beta0 = np.nan
         sol.beta1 = np.nan
-
+    # The function underneith calculates: self,LM,HM,LF,HF
     def calc_utility(self,LM,HM,LF,HF):
         """ calculate utility """
 
@@ -53,6 +53,7 @@ class HouseholdSpecializationModelClass:
         # a. consumption of market goods
         C = par.wM*LM + par.wF*LF
 
+        # HERE we ONLY have the cobb douglas home production so we will need to change this!!
         # b. home production
         H = HM**(1-par.alpha)*HF**par.alpha
 
@@ -129,5 +130,5 @@ class HouseholdSpecializationModelClass:
     
     def estimate(self,alpha=None,sigma=None):
         """ estimate alpha and sigma """
-
+        ## Needs to estimate them such that they yield the estimated results
         pass
