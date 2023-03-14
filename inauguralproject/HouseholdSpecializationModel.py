@@ -21,10 +21,12 @@ class HouseholdSpecializationModelClass:
         par.nu = 0.001
         par.epsilon = 1.0
         par.omega = 0.5 
+        
+        
 
         # c. household production
         par.alpha = 0.5
-        par.sigma = 1.0
+        par.sigma = 0.5
 
         # d. wages
         par.wM = 1.0
@@ -55,7 +57,17 @@ class HouseholdSpecializationModelClass:
 
         # HERE we ONLY have the cobb douglas home production so we will need to change this!!
         # b. home production
-        H = HM**(1-par.alpha)*HF**par.alpha
+        H = np.nan
+
+        power = (par.sigma - 1)/par.sigma
+
+        if par.sigma == 1:
+            H = HM**(1-par.alpha)*HF**par.alpha
+        elif par.sigma == 0:
+            H = np.fmin(HM, HF)
+        else: 
+            H = (  (1-par.alpha)  * (HM+ 0.0001) **(power) + par.alpha * (HF+ 0.0001)**(power)  )**(1/power)
+    
 
         # c. total consumption utility
         Q = C**par.omega*H**(1-par.omega)
