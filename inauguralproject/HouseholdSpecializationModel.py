@@ -119,7 +119,7 @@ class HouseholdSpecializationModelClass:
 
     def solve(self,do_print=False):
         """ solve model continously """
-        
+
         par = self.par
         sol = self.sol
         opt = SimpleNamespace()
@@ -148,25 +148,46 @@ class HouseholdSpecializationModelClass:
         return opt
 
 
+
+
+
+
     def solve_wF_vec(self,discrete=False):
         """ solve model for vector of female wages """
-        opt_ny = self.solve()
+        par = self.par
+        results_q3 = []
+
+        for i in par.wF_vec:
+            par.wF = i
+            opt = self.solve()
+                
+            relative_hours = opt.HF/opt.HM
+            log_relative_h = np.log(relative_hours)
+            #results_q3 = np.append(results_q3, log_relative_h)
+            results_q3.append(log_relative_h)
+
+        return results_q3 
+
+        #return opt.LM, opt.HM, opt.LF, opt.HF 
 
 
-        pass
+
 
     def run_regression(self):
         """ run regression """
 
         par = self.par
         sol = self.sol
-        self.solve_wF_vec
+        self.solve_wF_vec()
 
         x = np.log(par.wF_vec)
         y = np.log(sol.HF_vec/sol.HM_vec)
         A = np.vstack([np.ones(x.size),x]).T
         sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
     
+
+
+
     def estimate(self,alpha=None,sigma=None):
         """ estimate alpha and sigma """
 
