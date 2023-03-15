@@ -26,7 +26,7 @@ class HouseholdSpecializationModelClass:
 
         # c. household production
         par.alpha = 0.5
-        par.sigma = 0.5
+        par.sigma = 1
 
         # d. wages
         par.wM = 1.0
