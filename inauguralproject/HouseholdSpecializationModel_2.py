@@ -115,43 +115,47 @@ class HouseholdSpecializationModelClass:
 
         return opt
 
-
-
     def solve(self,do_print=False):
         """ solve model continously """
-        
         par = self.par
         sol = self.sol
         opt = SimpleNamespace()
-    
-    #a. objective function 
-        def obj(x):
-            LM, HM, LF, HF = x
-            return - self.calc_utility(LM, HM, LF, HF)
-    
-    #b. Constraints and Bounds (to minimize) 
-        def constraints(x):
-            LM, HM, LF, HF = x
-            return [24 - LM-HM, 24 -LF-HF]
-    
-
-        constraints = ({'type': 'ineq', 'fun':constraints}) 
-        bounds = ((0,24), (0,24), (0,24), (0,24))
-
-        initial_guess = [6,6,6,6]
-
-    #c. Solver 
-        sol = optimize.minimize(obj, initial_guess, method='SLSQP', bounds=bounds, constraints=constraints)
-
-        opt.LM, opt.HM, opt.LF, opt.HF = sol.x
         
+        # a. all possible choices
+        x = np.linspace(0,24,100)
+        LM,HM,LF,HF = np.meshgrid(x,x,x,x) # all combinations
+    
+        LM = LM.ravel() # vector
+        HM = HM.ravel()
+        LF = LF.ravel()
+        HF = HF.ravel()
+
+        # b. calculate utility
+        u = self.calc_utility(LM,HM,LF,HF)
+    
+        # c. set to minus infinity if constraint is broken
+        I = (LM+HM > 24) | (LF+HF > 24) # | is "or"
+        u[I] = -np.inf
+    
+        # d. find maximizing argument
+        j = np.argmax(u)
+        
+        opt.LM = LM[j]
+        opt.HM = HM[j]
+        opt.LF = LF[j]
+        opt.HF = HF[j]
+
+        # e. print
+        if do_print:
+            for k,v in opt.__dict__.items():
+                print(f'{k} = {v:6.4f}')
+
         return opt
 
+        pass    
 
     def solve_wF_vec(self,discrete=False):
         """ solve model for vector of female wages """
-        opt_ny = self.solve()
-
 
         pass
 
@@ -160,7 +164,6 @@ class HouseholdSpecializationModelClass:
 
         par = self.par
         sol = self.sol
-        self.solve_wF_vec
 
         x = np.log(par.wF_vec)
         y = np.log(sol.HF_vec/sol.HM_vec)
