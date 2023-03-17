@@ -124,7 +124,7 @@ class HouseholdSpecializationModelClass:
         sol = self.sol
         opt = SimpleNamespace()
     
-    #a. objective function 
+    # a. objective function 
         def obj(x):
             LM, HM, LF, HF = x
             return - self.calc_utility(LM, HM, LF, HF)
@@ -141,9 +141,12 @@ class HouseholdSpecializationModelClass:
         initial_guess = [6,6,6,6]
 
     #c. Solver 
-        sol = optimize.minimize(obj, initial_guess, method='SLSQP', bounds=bounds, constraints=constraints)
+        solution = optimize.minimize(obj, initial_guess, method="nelder-mead", bounds=bounds, constraints=constraints)
 
-        opt.LM, opt.HM, opt.LF, opt.HF = sol.x
+        opt.LM = solution.x[0]
+        opt.HM = solution.x[1]
+        opt.LF = solution.x[2]
+        opt.HF = solution.x[3]
         
         return opt
 
@@ -154,17 +157,23 @@ class HouseholdSpecializationModelClass:
 
     def solve_wF_vec(self,discrete=False):
         """ solve model for vector of female wages """
+        
         par = self.par
-        results_q3 = []
+        sol = self.sol
+        
+        results_q3 = np.zeros(par.wF_vec.size)
 
-        for i in par.wF_vec:
-            par.wF = i
+        for i, wF in enumerate(par.wF_vec):
+            par.wF = wF
+            
             opt = self.solve()
-                
-            relative_hours = opt.HF/opt.HM
-            log_relative_h = np.log(relative_hours)
-            #results_q3 = np.append(results_q3, log_relative_h)
-            results_q3.append(log_relative_h)
+            
+            sol.HM = opt.HM
+            sol.HF = opt.HF
+            results_q3[i] = sol.HF/sol.HM
+            print(f' the optimal male hours at home and at the job are {opt.HM:2f} and {opt.LM:2f} while for the female {opt.HF:2f} and {opt.LF:2f}')
+
+        sol.results_q3 = results_q3
 
         return results_q3 
 
@@ -186,7 +195,7 @@ class HouseholdSpecializationModelClass:
 
         sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
         
-        return sol.beta0, sol.beta1
+        #return sol.beta0, sol.beta1
     
 
 
