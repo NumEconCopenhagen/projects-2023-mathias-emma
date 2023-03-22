@@ -1,9 +1,8 @@
-# \[Group name\]
+# \[mathias-og-emma\]
 
 **Group members:**
-- A
-- B
-- C
+- Emma Odgaard Gundersen
+- Mathias Navne
 
 This repository contains  
 1. Inaugural project. 
