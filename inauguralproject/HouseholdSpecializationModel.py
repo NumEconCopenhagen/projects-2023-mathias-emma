@@ -141,7 +141,7 @@ class HouseholdSpecializationModelClass:
         initial_guess = [6,6,6,6]
 
     #c. Solver 
-        solution = optimize.minimize(obj, initial_guess, method="nelder-mead", bounds=bounds, constraints=constraints)
+        solution = optimize.minimize(obj, initial_guess, method="SLSQP", bounds=bounds, constraints=constraints, tol = 0.000000001)
 
         opt.LM = solution.x[0]
         opt.HM = solution.x[1]
@@ -161,7 +161,7 @@ class HouseholdSpecializationModelClass:
         par = self.par
         sol = self.sol
         
-        results_q3 = np.zeros(par.wF_vec.size)
+        results = np.zeros(par.wF_vec.size)
 
         for i, wF in enumerate(par.wF_vec):
             par.wF = wF
@@ -170,33 +170,50 @@ class HouseholdSpecializationModelClass:
             
             sol.HM = opt.HM
             sol.HF = opt.HF
-            results_q3[i] = sol.HF/sol.HM
-            print(f' the optimal male hours at home and at the job are {opt.HM:2f} and {opt.LM:2f} while for the female {opt.HF:2f} and {opt.LF:2f}')
+            results[i] = sol.HF/sol.HM
+            #print(f' the optimal male hours at home and at the job are {opt.HM:2f} and {opt.LM:2f} while for the female {opt.HF:2f} and {opt.LF:2f}')
 
-        sol.results_q3 = results_q3
+        sol.results = results
 
-        return results_q3 
+        return results
 
         #return opt.LM, opt.HM, opt.LF, opt.HF 
 
 
-
-
-    def run_regression(self):
-        """ run regression """
-
+    def solve_wF_vec_2(self,discrete=False):
+        """ solve model for vector of female wages """
+        
         par = self.par
         sol = self.sol
 
+        for i, wF in enumerate(par.wF_vec):
+            par.wF = wF
+            
+            opt = self.solve()
 
+            sol.LM_vec[i] = opt.LM
+            sol.HM_vec[i] = opt.HM
+            sol.LF_vec[i] = opt.LF
+            sol.HF_vec[i] = opt.HF
+
+        return sol 
+
+
+
+    
+    def run_regression(self):
+        """ run regression """
+        
+        #Setting up parameters
+        par = self.par
+        sol = self.sol
+        
+        #Running regression
         x = np.log(par.wF_vec)
         y = np.log(sol.HF_vec/sol.HM_vec)
         A = np.vstack([np.ones(x.size),x]).T
-
         sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
-        
-        #return sol.beta0, sol.beta1
-    
+        return sol 
 
 
 
