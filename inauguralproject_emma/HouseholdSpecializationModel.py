@@ -222,3 +222,42 @@ class HouseholdSpecializationModelClass:
         """ estimate alpha and sigma """
 
         pass
+
+
+
+
+    def tab_1(self, list_alpha, list_sigma):
+
+        """ table 1 """
+
+        par = self.par
+        sol = self.sol
+
+                # empty list to store the relative wage values
+        table_data = []
+
+        # loop alpha values
+        for alpha in list_alpha:
+            # row list for the current alpha value
+            row_data = []
+            
+            # loop  sigma values
+            for sigma in list_sigma:
+                # parameter values
+                par.alpha = alpha
+                par.sigma = sigma
+                
+                # solve for optimal solution
+                opt = model_1.solve_discrete()
+                
+                # calculate relative wage and append to row list
+                relative_wage = opt.HF / opt.HM
+                row_data.append(relative_wage)
+            
+            # append the row list to the table data list
+            table_data.append(row_data)
+
+        # create a pandas DataFrame from the table data
+        table = pd.DataFrame(table_data, index=list_alpha, columns=list_sigma)
+
+        return table
