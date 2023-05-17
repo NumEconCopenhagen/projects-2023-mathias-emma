@@ -223,7 +223,7 @@ class HouseholdSpecializationModelClass:
 
         pass
 
-    def gen_table(self, list_alpha,list_sigma):
+    def q1_gen_table(self, list_alpha,list_sigma):
         """ generate table """
     
        #Setting up parameters
@@ -259,7 +259,7 @@ class HouseholdSpecializationModelClass:
         return table
     
 
-    def plot_table(self,table):
+    def q1_plot_table(self,table):
         """ plot table """
             #Illistration 
         fig = plt.figure()
@@ -280,3 +280,50 @@ class HouseholdSpecializationModelClass:
         ax.invert_xaxis()
         fig.tight_layout()
         plt.show()
+    
+
+    def q2_wage_work(self, wF_vec):
+        """ plot results """
+        
+        # a. Setting up parameters
+        par = self.par
+        sol = self.sol
+
+        # b. Lists for relative wage and hours
+        rel_wage = []
+        rel_hours = []
+
+        # c. Loop over wF_vec for optimal solution
+        for wF in wF_vec:
+            par.wF = wF
+            opt = self.solve_discrete()
+            rel_wage.append(wF/par.wM)
+            rel_hours.append(opt.HF/opt.HM)
+        
+        # d. Log transformation
+        log_rel_wage = np.log(rel_wage)
+        log_rel_hours = np.log(rel_hours)
+
+        return log_rel_wage, log_rel_hours
+    
+    
+    def q2_plot(self, log_rel_wage, log_rel_hours):
+        """ plot results """
+        
+        # a. Setting up parameters
+        par = self.par
+        sol = self.sol
+
+        # b. Plotting
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        ax.plot(log_rel_wage, log_rel_hours)
+        ax.set_xlabel('log(w_F/w_M)')
+        ax.set_ylabel('log(H_F/H_M)')
+        ax.set_title('Log wage - log hours')
+        plt.show()
+        return fig, ax
+
+
+
+
