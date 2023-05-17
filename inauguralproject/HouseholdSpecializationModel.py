@@ -218,6 +218,23 @@ class HouseholdSpecializationModelClass:
 
 
 
+
+    def run_regression(self):
+        """ run regression """
+        
+        #Setting up parameters
+        par = self.par
+        sol = self.sol
+        
+        #Running regression
+        x = np.log(par.wF_vec)
+        y = np.log(sol.HF_vec/sol.HM_vec)
+        A = np.vstack([np.ones(x.size),x]).T
+        sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
+        return sol 
+
+
+
     def estimate(self,alpha=None,sigma=None):
         """ estimate alpha and sigma """
 
