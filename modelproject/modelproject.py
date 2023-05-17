@@ -85,13 +85,13 @@ def f(h,k,s_h,s_k,g,n,alpha,phi,delta):
 
 
 # Baseline parameters for the next to functions
-s_h = 0.10
-s_k = 0.10
-g = 0.02
-n = 0.01
+s_h = 0.129
+s_k = 0.25
+g = 0.016
+n = 0.014
 alpha = 1/3
 phi = 1/3
-delta = 0.05
+delta = 0.02
 tau = 0.1
 eta = 0.1
 
@@ -111,24 +111,24 @@ def solve_ss(s_h=s_h, s_k=s_k, g=g, n=n, alpha=alpha, phi=phi, delta=delta):
     """
     
     # Grids for physical capital
-    k_vec = np.linspace(0.01, 5, 500)
+    k_vec = np.linspace(0.01, 100, 1000)
 
     # Grid for human capital when physical capital per effective worker is constant
-    h_vec_DeltaK0 = np.empty(500)
+    h_vec_DeltaK0 = np.empty(1000)
 
     # Grid for human capital when human capital per effective worker is constant
-    h_vec_DeltaH0 = np.empty(500)
+    h_vec_DeltaH0 = np.empty(1000)
 
     # Finding the nullclines
     for i, k in enumerate(k_vec):
         # Solve for constant human capital per effective worker
         obj = lambda h: f(h, k, s_h, s_k, g, n, alpha, phi, delta)[0]
-        result = optimize.root_scalar(obj, method='brentq', bracket=[1e-20, 50])
+        result = optimize.root_scalar(obj, method='brentq', bracket=[1e-20, 100])
         h_vec_DeltaH0[i] = result.root
 
         # Solve for constant physical capital per effective worker
         obj = lambda h: f(h, k, s_h, s_k, g, n, alpha, phi, delta)[1]
-        result = optimize.root_scalar(obj, method='brentq', bracket=[1e-20, 50])
+        result = optimize.root_scalar(obj, method='brentq', bracket=[1e-20, 100])
         h_vec_DeltaK0[i] = result.root
 
     # Creating the plot
@@ -138,7 +138,7 @@ def solve_ss(s_h=s_h, s_k=s_k, g=g, n=n, alpha=alpha, phi=phi, delta=delta):
     ax.plot(k_vec, h_vec_DeltaH0, label=r'$\Delta \tilde{h}=0$')
     ax.set_xlabel(r'Physical capital per effective worker, $\tilde{k}$')
     ax.set_ylabel(r'Human capital per effective worker, $\tilde{h}$')
-    ax.set(xlim=(0, 5), ylim=(0, 5))
+    ax.set(xlim=(0, 100), ylim=(0, 100))
     ax.set_title('Phase diagram')
 
     # Setting up the objective and solving the model. We repeat this step instead of just calling it, so it will update when changing parameters with the widgets
