@@ -3,6 +3,7 @@ from types import SimpleNamespace
 
 import numpy as np
 from scipy import optimize
+from matplotlib import cm # for colormaps
 
 import pandas as pd 
 import matplotlib.pyplot as plt
@@ -256,4 +257,26 @@ class HouseholdSpecializationModelClass:
         # create a pandas DataFrame from the table data
         table = pd.DataFrame(table_data, index=list_alpha, columns=list_sigma)
         return table
-                
+    
+
+    def plot_table(self,table):
+        """ plot table """
+            #Illistration 
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        # create x, y and z values
+        x_data, y_data = np.meshgrid(table.columns, table.index)
+        z_data = table.values
+
+        # plot the surface
+        ax.plot_surface(x_data, y_data, z_data, cmap=cm.jet)
+
+        # set the axis labels
+        ax.set_xlabel('Sigma')
+        ax.set_ylabel('ALpha')
+        ax.set_zlabel('Relative hours H_F /H_M', labelpad=0)
+        # c. invert xaxis to bring Origin in center front
+        ax.invert_xaxis()
+        fig.tight_layout()
+        plt.show()
