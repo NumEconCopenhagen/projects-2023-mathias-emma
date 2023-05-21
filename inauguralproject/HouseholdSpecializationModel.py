@@ -159,7 +159,7 @@ class HouseholdSpecializationModelClass:
 
 
 
-    def solve_wF_vec(self,discrete=False):
+    #def solve_wF_vec(self,discrete=False):
         """ solve model for vector of female wages """
         
         par = self.par
@@ -184,7 +184,7 @@ class HouseholdSpecializationModelClass:
         #return opt.LM, opt.HM, opt.LF, opt.HF 
 
 
-    def solve_wF_vec_2(self,discrete=False):
+   # def solve_wF_vec_2(self,discrete=False):
         """ solve model for vector of female wages """
         
         par = self.par
@@ -204,14 +204,15 @@ class HouseholdSpecializationModelClass:
 
 
 
-    
+
+
     def run_regression(self):
         """ run regression """
         
         #Setting up parameters
         par = self.par
         sol = self.sol
-        
+
         #Running regression
         x = np.log(par.wF_vec)
         y = np.log(sol.HF_vec/sol.HM_vec)
@@ -221,28 +222,35 @@ class HouseholdSpecializationModelClass:
 
 
 
-
-    def run_regression(self):
-        """ run regression """
-        
+    def error(self, alpha_in, sigma_in):
         #Setting up parameters
+
         par = self.par
         sol = self.sol
-        
-        #Running regression
-        x = np.log(par.wF_vec)
-        y = np.log(sol.HF_vec/sol.HM_vec)
-        A = np.vstack([np.ones(x.size),x]).T
-        sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
-        return sol 
 
+        par.alpha = alpha_in
+        par.sigma = sigma_in
+
+        # 3. solving for optimal hours worked given relative wages 
+        self.q2_wage_work(self.par.wF_vec, discrete=False)
+        self.run_regression()
+
+        # 4. calculating the error
+        error = (par.beta0_target - sol.beta0)**2 + (par.beta1_target-sol.beta1)**2
+        
+        return error
 
 
 
     def estimate(self,alpha=None,sigma=None):
         """ estimate alpha and sigma """
+        par = self.par
+        sol = self.sol
 
-        pass
+
+        obj = lambda alpha, sigma:  (par.beta0_target - sol.beta0)**2 + (par.beta1_target-sol.beta1)**2
+
+        return obj
 
 
 
@@ -305,7 +313,9 @@ class HouseholdSpecializationModelClass:
         plt.show()
     
 
-    def q2_wage_work(self, wF_vec, discrete=False):
+
+#    def q2_wage_work(self, wF_vec, discrete=False):
+    def solve_wage_work(self, wF_vec, discrete=False):
         """ plot results """
         
         # a. Setting up parameters
@@ -352,5 +362,77 @@ class HouseholdSpecializationModelClass:
         plt.show()
         return fig, ax
 
+    def regression(self, log_rel_wage, log_rel_hours):
+        """ run regression """
+        
+        # a. Setting up parameters
+        par = self.par
+        sol = self.sol
+
+        # b. Running regression
+        x = log_rel_wage
+        y = log_rel_hours
+        A = np.vstack([np.ones(x.size),x]).T
+        sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
+
+        return sol.beta0, sol.beta1
+    
+   # def error(self, alpha_in, sigma_in):
+        "" 
+
+        ""
+        #Setting up parameters
+
+        par = self.par
+        sol = self.sol
+
+        par.alpha = alpha_in
+        par.sigma = sigma_in
+
+        # 3. solving for optimal hours worked given relative wages 
+        self.q2_wage_work(self.par.wF_vec, discrete=False)
+        self.run_regression()
+
+        # 4. calculating the error
+        error = (par.beta0_target - sol.beta0)**2 + (par.beta1_target-sol.beta1)**2
+        
+        return error
 
 
+
+    def run_regression_ny(self, log_rel_wage, log_rel_hours) :
+        """ run regression 
+        args:
+            log_rel_wage (array): log relative wage
+            log_rel_hours (array): log relative hours
+        
+        output:
+            beta0 (float): intercept
+            beta1 (float): slope
+
+        """
+        
+        #Setting up parameters
+        par = self.par
+        sol = self.sol
+
+        #Running regression
+        x = log_rel_wage
+        y = log_rel_hours
+        A = np.vstack([np.ones(x.size),x]).T
+        sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
+
+        return sol 
+
+    def error_2 (self, log_rel_wage, log_rel_hours):
+                
+        #Setting up parameters
+        par = self.par
+        sol = self.sol
+
+        self.run_regression_ny(log_rel_wage, log_rel_hours)
+        error = (par.beta0_target - sol.beta0)**2 + (par.beta1_target-sol.beta1)**2
+        return error
+    
+    def min_error (self, log_rel_wage, log_rel_hours):
+        obj = self.error
