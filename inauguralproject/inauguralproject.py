@@ -270,12 +270,15 @@ class HouseholdSpecializationModelClass:
         return fig, ax
 
 
-    def run_regression(self, log_rel_wage, log_rel_hours):
+    def run_regression(self):
         """ run regression """
+        
         
         #Setting up parameters
         par = self.par
         sol = self.sol
+
+        log_rel_wage, log_rel_hours = self.solve_wage_work( discrete=False)
 
         #Running regression
         x = log_rel_wage
@@ -285,4 +288,87 @@ class HouseholdSpecializationModelClass:
         beta0, beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
 
         return beta0, beta1 
+    
 
+    def q4_min_error(self, do_print=True):
+        """Minimum distanse to the data by varrying alpha and sigma 
+        
+        Returns:
+            alpha hat 
+            sigma hat
+            That minimize the distance to the data
+            and the error associated with the parameters
+        
+        """
+        
+        par = self.par 
+
+        def obj(q):
+
+            par.alpha, par.sigma = q
+
+            beta0, beta1 = self.run_regression()
+
+
+            error = (beta0 - par.beta0_target)**2 + (beta1 - par.beta1_target)**2
+
+            return error
+
+        bounds = [(0, 0.999),(0.001, 2)]
+        initial_guess = (0.5, 1)
+        reg_opt = optimize.minimize(obj, initial_guess, method='Nelder-Mead', bounds=bounds, tol = 0.000000001) #Hvis tolerancen er høj, accepterer den løsninger som kun er tæt på at være rigtige
+
+        #Results from optimization
+        alpha_hat = reg_opt.x[0]
+        sigma_hat = reg_opt.x[1]
+        err = obj(reg_opt.x)
+
+        if do_print:
+            print(f'\n\n This gives the parameters: \n   alpha = {alpha_hat:.2f} \n   sigma = {sigma_hat:.2f}')
+            print(f' With the squared error {err:.2f}')
+
+
+        return alpha_hat, sigma_hat, err
+    
+
+
+    def q5_min_error(self, do_print=True):
+        """Minimum distanse to the data by varrying theta and sigma
+        
+        Returns:
+            theta hat 
+            sigma hat
+            That minimize the distance to the data
+            and the error associated with the parameters
+        
+        """
+        
+        par = self.par 
+
+        def obj(q):
+
+            par.theta, par.sigma = q
+
+            beta0, beta1 = self.run_regression()
+
+
+            error = (beta0 - par.beta0_target)**2 + (beta1 - par.beta1_target)**2
+
+            return error
+
+        bounds = [(0, 10),(0.001, 1)]
+
+        initial_guess = (1, 0.5)
+        reg_opt = optimize.minimize(obj, initial_guess, method='Nelder-Mead', bounds=bounds, tol = 0.000000001) #Hvis tolerancen er høj, accepterer den løsninger som kun er tæt på at være rigtige
+
+        #Results from optimization
+        theta_hat = reg_opt.x[0]
+        sigma_hat = reg_opt.x[1]
+        err = obj(reg_opt.x)
+
+        if do_print:
+            print(f'\n\n This gives the parameters: \n   theta = {theta_hat:.2f} \n   sigma = {sigma_hat:.2f}')
+            print(f' With the squared error {err:.2f}')
+
+
+        return theta_hat, sigma_hat, err
