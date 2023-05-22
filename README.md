@@ -1,4 +1,4 @@
-# Welcome yo our Repository for 'Introduction to Programming and Numerical Analysis'
+# Welcome to our Repository for 'Introduction to Programming and Numerical Analysis'
 **Group members:**
 - Emma Odgaard Gundersen | KU-id: jfn468
 - Mathias Navne          | KU-id: fsk290 
