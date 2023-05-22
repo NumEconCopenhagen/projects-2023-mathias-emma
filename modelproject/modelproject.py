@@ -28,7 +28,7 @@ def analytical(latex = False):
     n = sm.symbols('n')
     A = sm.symbols('A')
 
-    x = [sk, sh, g, phi, n, alpha, delta]
+    x = [sk, sh, g, phi, n, alpha, delta, k]
     
     # 2. Function for deriving the analytical solution
     #Transition lines:
@@ -54,6 +54,10 @@ def analytical(latex = False):
 
     out['nult_k'] = nult_k
     out['nult_h'] = nult_h
+
+    out['nult_k_eq'] = sm.Eq( h, out['nult_k'][0])
+    out['nult_h_eq'] = sm.Eq( h, out['nult_h'][0])
+
 
     if latex == True: 
 
