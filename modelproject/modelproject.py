@@ -18,8 +18,6 @@ def analytical(latex = False):
     # 1. Defining the variables as symbols for using sympy
     k = sm.symbols('k')
     h = sm.symbols('h')
-    y = sm.symbols('y')
-    c = sm.symbols('c')
     sh = sm.symbols('s_h')
     sk = sm.symbols('s_k')
     delta = sm.symbols('delta')
@@ -27,10 +25,7 @@ def analytical(latex = False):
     alpha = sm.symbols('alpha')
     g = sm.symbols('g')
     n = sm.symbols('n')
-    A = sm.symbols('A')
 
-    x = [sk, sh, g, phi, n, alpha, delta, k]
-    
     # 2. Function for deriving the analytical solution
     #Transition lines:
     k_t2 = (sk*k**alpha*h**phi+(1-delta)*k)/((1+n)*(1+g))
@@ -39,7 +34,6 @@ def analytical(latex = False):
     #Change in capital stock () - Sollow equations 
     delta_k = k_t2 - k 
     delta_h = h_t2 - h
-    delta_combined = delta_h + delta_k
 
     #Nultlines (Stock of capital is constant)
     sollow_k = sm.Eq(delta_k,0)
@@ -67,6 +61,7 @@ def analytical(latex = False):
 
     return out
 
+
 # Define a function for the transition equations 
 def f(h,k,s_h,s_k,g,n,alpha,phi,delta):
     """input arguments:
@@ -86,15 +81,16 @@ def f(h,k,s_h,s_k,g,n,alpha,phi,delta):
 
     h_function = 1/((1+n)*(1+g))*(s_h*k**(alpha)*h**(phi)+(1-delta)*h)-h
     k_function = 1/((1+n)*(1+g))*(s_k*k**(alpha)*h**(phi)+(1-delta)*k)-k
+    
     return h_function,k_function
 
 
 
-# Baseline parameters for the next to functions
+# Setting up baseline parameters in a SimpleNamespace
 par = SimpleNamespace(**{'s_h':0.13, 's_k':0.25, 'g':0.016, 'n':0.014, 'alpha':1/3, 'phi':1/3, 'delta':0.02, 'tau':0.1, 'eta':0.05})
 
 
-# Define a function to calculate the nullclines
+# Defining a function to calculate the nullclines
 def solve_ss(s_h=par.s_h, s_k=par.s_k, g=par.g, n=par.n, alpha=par.alpha, phi=par.phi, delta=par.delta):
     """args:
     s_h    (float): Savings/Investments in human capital
@@ -108,7 +104,7 @@ def solve_ss(s_h=par.s_h, s_k=par.s_k, g=par.g, n=par.n, alpha=par.alpha, phi=pa
     Returns:
     The nullclines for physical and human capital
     """
-    
+    # 1. Setting up the grids
     # Grids for physical capital
     k_vec = np.linspace(0.01, 100, 1000)
 
@@ -118,7 +114,7 @@ def solve_ss(s_h=par.s_h, s_k=par.s_k, g=par.g, n=par.n, alpha=par.alpha, phi=pa
     # Grid for human capital when human capital per effective worker is constant
     h_vec_DeltaH0 = np.empty(1000)
 
-    # Finding the nullclines
+    # 2. Finding the nullclines
     for i, k in enumerate(k_vec):
         # Solve for constant human capital per effective worker
         obj = lambda h: f(h, k, s_h, s_k, g, n, alpha, phi, delta)[0]
@@ -130,7 +126,7 @@ def solve_ss(s_h=par.s_h, s_k=par.s_k, g=par.g, n=par.n, alpha=par.alpha, phi=pa
         result = optimize.root_scalar(obj, method='brentq', bracket=[1e-20, 100])
         h_vec_DeltaK0[i] = result.root
 
-    # Creating the plot
+    # 3. Creating the plot
     fig = plt.figure(figsize=(13,5))
     ax = fig.add_subplot(1,2,1)
     ax.plot(k_vec, h_vec_DeltaK0, label=r'$\Delta \tilde{k}=0$')
@@ -140,35 +136,36 @@ def solve_ss(s_h=par.s_h, s_k=par.s_k, g=par.g, n=par.n, alpha=par.alpha, phi=pa
     ax.set(xlim=(0, 100), ylim=(0, 100))
     ax.set_title('Phase diagram')
 
-    # Setting up the objective and solving the model. We repeat this step instead of just calling it, so it will update when changing parameters with the widgets
+    # 4. Setting up the objective and solving the model. We repeat this step instead of just calling it, so it will update when changing parameters with the widgets, i.e. moving the SS-mark.
     objective = lambda x: [f(x[0],x[1],s_h,s_k,g,n,alpha,phi,delta)]
     solution = optimize.root(objective,[1,1],method = 'broyden1')
     num_solution = solution.x
     
-    # Draw lines and mark the point of the ss-value. It is interactive, so it will change, when chainging the parameters
+    # 5. Draw lines and mark the point of the ss-value. It is interactive, so it will change, when chainging the parameters
     plt.axvline(num_solution[1], ymax=1, color='gray', linestyle='--') 
     plt.axhline(num_solution[0], xmax=1, color='gray', linestyle='--') 
     ax.scatter(num_solution[1],num_solution[0],color='black',s=80,zorder=2.5, label=r'$\Delta\tilde{h}=\Delta\tilde{k}=0$')
     ax.legend() 
-
+    
+    # 6. Print the steady state values
     print(f'The level of human and physical capital per effective worker in steady \n state with updated parameters are = {num_solution[0]:.3f} and {num_solution[1]:.3f}, respectively.')
 
 
 # Define a function to simulate the Solow model
 def solow_model(s_h=par.s_h, s_k=par.s_k, g=par.g, n=par.n, alpha=par.alpha, phi=par.phi, delta=par.delta, tau=par.tau, eta=par.eta):
-    # Set initial values
+    # 1. Set initial values
     k = 1               # Capital stock per effective worker
     l = 1               # Labour per effective worker
     a = 1               # Technology level
     h = 1               # Human capital per effective worker
     
-    # Create empty arrays to store data
+    # 2. Create empty arrays to store data
     num_periods = 1000
     k_array = np.empty(num_periods)
     y_array = np.empty(num_periods)
     h_array = np.empty(num_periods)
     
-    # Simulate the model for 1,000 periods
+    # 3. Simulate the model for 1,000 periods
     for t in range(num_periods):
         k_array[t] = k
         y_array[t] = k ** alpha * h ** phi 
@@ -182,7 +179,7 @@ def solow_model(s_h=par.s_h, s_k=par.s_k, g=par.g, n=par.n, alpha=par.alpha, phi
         k = 1/((1+n)*(1+g))*((1 - delta) * k + i_k) / (l * a)
         h = 1/((1+n)*(1+g))*((1 - delta) * h + i_h) / (l * a)
         
-    # Plot the results
+    # 4. Plot the results
     t_values = np.arange(num_periods)
     plt.plot(t_values, k_array, label='Physical capital per effective worker')
     plt.plot(t_values, y_array, label='Output per effective worker')
