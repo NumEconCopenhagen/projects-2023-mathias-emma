@@ -84,7 +84,7 @@ def plot_year(df_2, year):
     plt.show()
 
 
-def map_plot(denmark_map,df_mun,year):
+def map_plot(df_mun):
     # Load municipality boundaries from a shapefile
     denmark_map = gpd.read_file('Map_data/DNK_adm2.shp')
     
