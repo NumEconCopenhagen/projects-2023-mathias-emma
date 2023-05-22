@@ -184,7 +184,7 @@ def solow_model(s_h=par.s_h, s_k=par.s_k, g=par.g, n=par.n, alpha=par.alpha, phi
         
     # Plot the results
     t_values = np.arange(num_periods)
-    plt.plot(t_values, k_array, label='Capital per effective worker')
+    plt.plot(t_values, k_array, label='Physical capital per effective worker')
     plt.plot(t_values, y_array, label='Output per effective worker')
     plt.plot(t_values, h_array, label='Human capital per effective worker')
     plt.legend()
