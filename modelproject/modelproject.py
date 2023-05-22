@@ -2,6 +2,7 @@ from scipy import optimize
 import sympy as sm
 import numpy as np
 import matplotlib.pyplot as plt
+from types import SimpleNamespace
 
 # Funcion that derives the equations for the nullclines
 def analytical(latex = False):
@@ -88,19 +89,13 @@ def f(h,k,s_h,s_k,g,n,alpha,phi,delta):
     return h_function,k_function
 
 
+
 # Baseline parameters for the next to functions
-s_h = 0.129
-s_k = 0.25
-g = 0.016
-n = 0.014
-alpha = 1/3
-phi = 1/3
-delta = 0.02
-tau = 0.1
-eta = 0.1
+par = SimpleNamespace(**{'s_h':0.13, 's_k':0.25, 'g':0.016, 'n':0.014, 'alpha':1/3, 'phi':1/3, 'delta':0.02, 'tau':0.1, 'eta':0.05})
+
 
 # Define a function to calculate the nullclines
-def solve_ss(s_h=s_h, s_k=s_k, g=g, n=n, alpha=alpha, phi=phi, delta=delta):
+def solve_ss(s_h=par.s_h, s_k=par.s_k, g=par.g, n=par.n, alpha=par.alpha, phi=par.phi, delta=par.delta):
     """args:
     s_h    (float): Savings/Investments in human capital
     s_k    (float): Savings/Investments in physical capital
@@ -160,7 +155,7 @@ def solve_ss(s_h=s_h, s_k=s_k, g=g, n=n, alpha=alpha, phi=phi, delta=delta):
 
 
 # Define a function to simulate the Solow model
-def solow_model(s_h=s_h, s_k=s_k, g=g, n=n, alpha=alpha, phi=phi, delta=delta, tau=tau,eta=eta):
+def solow_model(s_h=par.s_h, s_k=par.s_k, g=par.g, n=par.n, alpha=par.alpha, phi=par.phi, delta=par.delta, tau=par.tau, eta=par.eta):
     # Set initial values
     k = 1               # Capital stock per effective worker
     l = 1               # Labour per effective worker
@@ -184,8 +179,8 @@ def solow_model(s_h=s_h, s_k=s_k, g=g, n=n, alpha=alpha, phi=phi, delta=delta, t
         i_h = s_h * y_array[t] * (1 + eta)
         
         # Update capital and human capital
-        k = 1/(1+n)*(1+g)*((1 - delta) * k + i_k) / (l * a)
-        h = 1/(1+n)*(1+g)*((1 - delta) * h + i_h) / (l * a)
+        k = 1/((1+n)*(1+g))*((1 - delta) * k + i_k) / (l * a)
+        h = 1/((1+n)*(1+g))*((1 - delta) * h + i_h) / (l * a)
         
     # Plot the results
     t_values = np.arange(num_periods)
@@ -195,5 +190,8 @@ def solow_model(s_h=s_h, s_k=s_k, g=g, n=n, alpha=alpha, phi=phi, delta=delta, t
     plt.legend()
     plt.xlabel('Time')
     plt.ylabel('Level')
+    plt.ylim(0, 100)
     plt.title('Simulation of the Solow model with human capital and tax for 1,000 periods')
+    if eta>tau: print('OBS: The tax on physical capital is lower than the subsidy on human capital. This is not a stable equilibrium.')
     plt.show()
+    
