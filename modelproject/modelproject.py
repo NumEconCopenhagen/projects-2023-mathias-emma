@@ -190,7 +190,7 @@ def solow_model(s_h=par.s_h, s_k=par.s_k, g=par.g, n=par.n, alpha=par.alpha, phi
     plt.legend()
     plt.xlabel('Time')
     plt.ylabel('Level')
-    plt.ylim(0, 100)
+    plt.ylim(0, 70)
     plt.title('Simulation of the Solow model with human capital and tax for 1,000 periods')
     if eta>tau: print('OBS: The tax on physical capital is lower than the subsidy on human capital. This is not a stable equilibrium.')
     plt.show()
