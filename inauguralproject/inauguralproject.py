@@ -23,9 +23,9 @@ class HouseholdSpecializationModelClass:
         par.epsilon = 1.0
         par.omega = 0.5 
 
-        # additional parameter for disutility of 
+        # additional parameter for disutility for men working at home
         par.theta = 0
-        par.z = 1
+
 
         # c. household production
         par.alpha = 0.5
@@ -70,7 +70,7 @@ class HouseholdSpecializationModelClass:
         else: 
             HM = np.fmax(HM,1e-8)
             HF = np.fmax(HF,1e-8)
-            inside = ( (1-par.alpha)  * (HM) **(power) + par.alpha * (HF)**(power)  )
+            inside = ( (1-par.alpha)  * (HM) **(power) + par.alpha * (HF)**(power) )
             inside = np.fmax(inside,1e-8)
             H = inside**(1/power)
 
@@ -82,7 +82,7 @@ class HouseholdSpecializationModelClass:
         epsilon_ = 1+1/par.epsilon
         TM = LM+HM
         TF = LF+HF
-        disutility = par.nu*(TM**epsilon_/epsilon_+TF**epsilon_/epsilon_ + LF*par.theta + HM*par.z)
+        disutility = par.nu*(TM**epsilon_/epsilon_+TF**epsilon_/epsilon_ + par.theta *HM )
         
         return utility - disutility
 
@@ -163,7 +163,7 @@ class HouseholdSpecializationModelClass:
         """ plot results
          arg
            """
-        
+         
         # a. Setting up parameters
         par = self.par
         sol = self.sol
