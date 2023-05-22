@@ -184,7 +184,7 @@ class HouseholdSpecializationModelClass:
         #return opt.LM, opt.HM, opt.LF, opt.HF 
 
 
-   # def solve_wF_vec_2(self,discrete=False):
+    def solve_wF_vec_2(self,discrete=False):
         """ solve model for vector of female wages """
         
         par = self.par
