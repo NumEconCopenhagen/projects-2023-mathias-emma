@@ -12,90 +12,90 @@ from fuzzywuzzy import process
 def plot_time(df):
     subset_df = df[df['mun'] == 'All Denmark']
 
-    # Convert 'year' to numeric data type
+    # 1. Convert 'year' to numeric data type
     subset_df['year'] = pd.to_numeric(subset_df['year'])
 
     fig, ax1 = plt.subplots()
 
-    # Plot 'exp' on the first axis
+    # 2. Plot 'exp' on the first axis
     ax1.plot(subset_df['year'], subset_df['exp_per_cap'], color='b')
     ax1.set_xlabel('Year')
     ax1.set_ylabel('Exp', color='b')
 
-    # Create a twin axis
+    # 3. Create a twin axis
     ax2 = ax1.twinx()
 
-    # Plot 'loan' on the second axis
+    # 4. Plot 'loan' on the second axis
     ax2.plot(subset_df['year'], subset_df['loan_per_cap'], color='r')
     ax2.set_ylabel('Loan', color='r')
 
-    # Set tick locations and labels for x-axis
+    # 5. Set tick locations and labels for x-axis
     xticks = np.arange(subset_df['year'].min(), subset_df['year'].max()+1, 5)
     ax1.set_xticks(xticks)
     ax1.set_xticklabels(xticks)
 
+    # 6. Show plot
     plt.title('Plot of Exp and Loan over Time')
     plt.show()
 
 def plot_scatter(df_2):
+    # 1. Subset df
     subset_df = df_2 #[df['year'] == 'YYYY']
 
-    # Create a scatter plot with 'exp' on the first axis and 'loan' on the second axis
+    # 2. Create a scatter plot with 'exp' on the first axis and 'loan' on the second axis
     ax = sns.regplot(x='exp_per_cap', y='loan_per_cap', data=subset_df)
 
-    # Set plot title and labels
-    plt.title('Scatter Plot of Exp and Loan from 2009-2022')
-    plt.xlabel('Exp pr. capita')
-    plt.ylabel('Loan pr. capita')
-
-    # Add a regression equation
+    # 3. Add a regression equation
     slope, intercept = np.polyfit(subset_df['exp_per_cap'], subset_df['loan_per_cap'], 1)
     eq = f'y = {slope:.2f}x + {intercept:.2f}'
     ax.annotate(eq, xy=(0.05, 0.95), xycoords='axes fraction')
 
-    # Display the plot
+    # 4. Display the plot
+    plt.title('Scatter Plot of Exp and Loan from 2009-2022')
+    plt.xlabel('Exp pr. capita')
+    plt.ylabel('Loan pr. capita')
     plt.show()
 
-    subset_df = df_2 #[df['year'] == 'YYYY']
-
-    # Create a regression model with 'exp_per_cap' and 'Loan_per_cap'
+    # 5. Create a regression model with 'exp_per_cap' and 'Loan_per_cap'
     X = subset_df[['exp_per_cap']]
     y = subset_df['loan_per_cap']
     X = sm.add_constant(X)
     model1 = sm.OLS(y, X).fit()
     print(model1.summary())
 
+
 def plot_year(df_2, year):
-    # Create a figure
+    # 1. Create a figure
     fig, ax1 = plt.subplots(1, 1, figsize=(8, 6))
 
-    # Plot the first subplot
+    # 2. Plot the first subplot
     subset_df1 = df_2[df_2['year'] == year]
     sns.regplot(x='exp_per_cap', y='loan_per_cap', data=subset_df1, ax=ax1)
     slope, intercept = np.polyfit(subset_df1['exp_per_cap'], subset_df1['loan_per_cap'], 1)
     eq = f'y = {slope:.2f}x + {intercept:.2f}'
     ax1.annotate(eq, xy=(0.05, 0.95), xycoords='axes fraction')
-    ax1.set_title('Scatter Plot of Exp and Loan in 2018')
+    ax1.set_title('Scatter Plot of Exp and Loan in a given year')
     ax1.set_xlabel('Exp pr. capita')
     ax1.set_ylabel('Loan pr. capita')
 
-    # adjust the layout and display the plot
+    # 3. Adjust the layout and display the plot
     fig.tight_layout()
     plt.show()
 
 
 def map_plot(df_mun):
-    # Load municipality boundaries from a shapefile
+    # 1. Load municipality boundaries from a shapefile
     denmark_map = gpd.read_file('Map_data/DNK_adm2.shp')
     
-    # Rename the 'NAME_2' column to 'mun'
+    # 2. Rename the 'NAME_2' column to 'mun'
     denmark_map = denmark_map.rename(columns={'NAME_2': 'mun'})
 
-    # Define a function to match strings based on similarity score
+    # 3. Define a function to match strings based on similarity score
     def match_strings(x, choices):
         best_match = process.extractOne(x, choices)
         return best_match[0] if best_match[1] >= 80 else None
-
+    
+    # 4. Prepare the data for plotting
     def prepare_data(df_mun, year, denmark_map):
         # Load the expenditure data into a pandas dataframe
         df_2_mun = df_mun[df_mun['year'] == str(year)]
@@ -115,14 +115,12 @@ def map_plot(df_mun):
     denmark_map_2012, exp_min_2012, exp_max_2012 = prepare_data(df_mun, 2012, denmark_map)
     denmark_map_2018, exp_min_2018, exp_max_2018 = prepare_data(df_mun, 2018, denmark_map)
 
-    # Create the figure and axes
-    fig, axs = plt.subplots(1, 2, figsize=(20, 10))
-
-    # Set the color bar range based on min and max values from both years
+    # 5. Set the color bar range based on min and max values from both years
     exp_min = min(exp_min_2012, exp_min_2018)
     exp_max = max(exp_max_2012, exp_max_2018)
 
-    # Plot the maps
+    # 6. Plot the maps
+    fig, axs = plt.subplots(1, 2, figsize=(20, 10))
     for ax, denmark_map_year, year in zip(axs, [denmark_map_2012, denmark_map_2018], [2012, 2018]):
         denmark_map_year.plot(column='color', cmap='Reds', linewidth=0.5, ax=ax, edgecolor='black')
         ax.set_title(f'Year {year}')
