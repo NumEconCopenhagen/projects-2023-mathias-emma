@@ -19,8 +19,5 @@ The project is organized around the 5 questions of the assignment, Q1-Q5.
 2. Install the required dependencies: only standard packages are being used
 3. Run the main script: `Inaugural.ipynb`
 
-## Usage
-Observe the generated output, including graphs and numerical results, to analyze the difference in working behavior between the sexes.
-
 ## Conclusion
 The simple model cannot explain why women use more time working at home than men. With our extention that involves further disutility of working at home for men, we can fit the estimates of Siminski and Yetsenga (2022).
