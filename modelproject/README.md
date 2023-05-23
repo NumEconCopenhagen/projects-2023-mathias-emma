@@ -16,7 +16,7 @@ The project focuses on a analytical and numerical solution of the Solow model wi
 ## Getting Started
 
 1. Clone the repository: `git clone https://github.com/NumEconCopenhagen/projects-2023-mathias-emma-S-ren`
-2. Install the required dependencies: 
+2. Install the required dependencies: Only standard packages are being used.
 3. Run the main script: `modelproject.ipynb`
 4. Unfortunately, Github does not execute ineractive widgets, which means that the interactive sliders and plots will not be displayed on Gitubs code viewer, 
    you therefore need to run it in VScode. 
