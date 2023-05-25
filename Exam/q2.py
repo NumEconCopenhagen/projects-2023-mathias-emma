@@ -6,7 +6,14 @@ from types import SimpleNamespace
 # Question 2
 
 # Setting up a simple namespace for the parameters in Question 2
-par = SimpleNamespace(**{'s_h':0.13, 's_k':0.25, 'g':0.016, 'n':0.014, 'alpha':1/3, 'phi':1/3, 'delta':0.02, 'tau':0.1, 'eta':0.05})
+par = SimpleNamespace()
+par.eta = 0.5
+par.w = 1
+par.rho = 0.9
+par.iota = 0.01
+par.sigma = 0.1
+par.R=(1+0.01)^(1/12)
+
 
 # Q2.1
 def profit(kappa, l):
