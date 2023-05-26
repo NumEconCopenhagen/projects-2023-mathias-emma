@@ -12,14 +12,15 @@ par.w = 1
 par.rho = 0.9
 par.iota = 0.01
 par.sigma = 0.1
-par.R=(1+0.01)^(1/12)
+par.R=(1+0.01)**(1/12)
+par.kappa_discrete = [1.0, 2.0]
 
 
 # Q2.1
-def profit(kappa, l):
-    return kappa * l ** (1 - eta) - w * l
+def profit(par,l):
+    return kappa_discrete * l ** (1 - par.eta) - par.w * l
 
-def optimal_l(kappa):
-    return ((1 - eta) * kappa / w) ** (1 / eta)
+def optimal_l(par):
+    return ((1 - par.eta) * par.kappa_discrete / par.w) ** (1 / par.eta)
 
 
