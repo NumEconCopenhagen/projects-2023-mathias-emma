@@ -21,9 +21,20 @@ def global_opt(par_3, warmup_iters, do_print=False, do_plot=False, time_speed = 
     Args:
         par_3 (SimpleNamespace): Namespace containing the parameters for the algorithm.
         warmup_iters (int): Number of iterations before the algorithm starts to update x_k0.
+
     Returns:
-        iter_counter (list): List of iterations.
-        x_k0_values (list): List of x_k0 values.
+        if print_mean (bool)
+            prints the optimal x1 and x2 values, the number of iterations and the time it took to find the global optimum.
+        
+        if do_plot (bool)
+            Plots the effective initial guesses against the iteration counter.
+        
+        if time_speed (bool)
+            Returns the time it took to find the global optimum, the number of iterations and the distans to x_true.
+        
+        if count_it (bool)
+            Returns the number of iterations and the distans to x_true. x_star (list): List of optimal x1 and x2 values.
+
     """
     t0 = time.time()
     x_star = None
@@ -99,6 +110,7 @@ def plot_q3(iter_counter, x_k0_values, warmup_iters):
         iter_counter (list): List of iterations.
         x_k0_values (list): List of x_k0 values.
         warmup_iters (int): Number of iterations before the algorithm starts to update x_k0.
+
     Returns:
         None
 
@@ -108,7 +120,7 @@ def plot_q3(iter_counter, x_k0_values, warmup_iters):
     plt.plot(iter_counter, x_k0_values, '.')
     plt.xlabel('Iteration counter k')
     plt.ylim([-600, 600])
-    plt.xlim([0, 400])
+    # plt.xlim([0, 300])
     plt.ylabel('Effective Initial Guesses x_k0')
     plt.title(f'Variation of effective initial guesses with iteration counter (warmup_iters = {warmup_iters})')
     plt.grid(True)
@@ -117,7 +129,7 @@ def plot_q3(iter_counter, x_k0_values, warmup_iters):
 
 # Function for finding speed of algorithsm 
 
-def speed_func_n(par_3, loops, print_mean=False, return_var = False, plot= False, plot_distans_to_xtrue=False):
+def speed_func(par_3, loops, print_mean=False,  plot= False, plot_distans_to_xtrue=False):
 
     """This function finds the speed of the algorithm 
 
@@ -125,21 +137,18 @@ def speed_func_n(par_3, loops, print_mean=False, return_var = False, plot= False
         par_3 (SimpleNamespace): Namespace containing the parameters for the algorithm.
         loops (int): Number of loops to run the algorithm.
     
-    Optional Args that allow for returning, printing and plotting:
     
     Returns:
         if print_mean (bool)
             prints the mean speed and iterations for n = 10 and n = 100.
 
-        if return_var (bool)
-            Returns:
-                speed_10 (list): List of speeds for n = 10.
-                speed_100 (list): List of speeds for n = 100.
-                iterations_10 (list): List of iterations for n = 10.
-                iterations_100 (list): List of iterations for n = 100.
 
-        if plot_speed (bool)
-            Plots the speed of the algorithm  and the number of iterationsfor n = 10 and n = 100.
+        if plot (bool)
+            Plots the speed and iterations for n = 10 and n = 100.
+
+        if plot_distans_to_xtrue (bool)
+            Plots the distans to x_true for n = 10 and n = 100.
+
 
     """
     # A empty lists to store the speed and iterations
@@ -176,10 +185,6 @@ def speed_func_n(par_3, loops, print_mean=False, return_var = False, plot= False
         print(f"Mean iterations for n = 10: {mean_iterations_10:.2f}")
         print(f"Mean iterations for n = 100: {mean_iterations_100:.2f}")
     
-    if return_var == True:
-        return speed_10, speed_100, iterations_10, iterations_100
-    
-
 
     if plot == True:
         fig, axs = plt.subplots(1, 2, figsize=(12, 6))
@@ -198,7 +203,7 @@ def speed_func_n(par_3, loops, print_mean=False, return_var = False, plot= False
         axs[1].axvline(x=mean_iterations_10, color='r', linestyle='dashed', linewidth=1, label='Mean iterations (n=10)')
         axs[1].axvline(x=mean_iterations_100, color='b', linestyle='dashed', linewidth=1, label='Mean iterations (n=100)')
         axs[1].legend(loc='upper right')
-        axs[1].set_xlabel('Itterations')
+        axs[1].set_xlabel('Iterations')
         axs[1].set_ylabel('Density')
         axs[1].set_title('Number of Iterations')
 
@@ -216,3 +221,4 @@ def speed_func_n(par_3, loops, print_mean=False, return_var = False, plot= False
         plt.title('Effect of warmup iterations on the iteration counter ')
         plt.legend(loc='upper right')
         plt.grid(True)
+        plt.show()
