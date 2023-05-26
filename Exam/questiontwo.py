@@ -48,6 +48,7 @@ def optimal_l(par, kappa):
 
 
 
+
 # Q2.2-Q2.5, functions for continuous kappa
 def generate_kappa(par, seed):
     """
