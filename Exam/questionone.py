@@ -106,3 +106,8 @@ def G_func_v2(tau=par.tau, rho=par.rho_values[0], sigma=par.sigma_values[0], eps
     result = root(func, 1.0)  # Let's start with initial guess of 1.0 for G
     return result.x[0]
 
+def G_func_v2_utility(tau=par.tau, rho=par.rho_values[0], sigma=par.sigma_values[0], epsilon=par.epsilon_values[0]):
+    func = lambda G: G - tau * par.w_val * L_star_v2(tau, G, rho, sigma, epsilon)
+    result = root(func, 1.0)  # Let's start with initial guess of 1.0 for G
+    utility_given_G = V_v2(L_star_v2(tau, result.x[0], rho, sigma, epsilon), result.x[0], tau, rho, sigma, epsilon)
+    return result.x[0], utility_given_G
