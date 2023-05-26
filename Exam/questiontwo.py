@@ -13,11 +13,11 @@ par.rho = 0.9 # persistence of shocks in AR(1) process
 par.iota = 0.01 # fixed adjustment cost of huring or firing 
 par.sigma = 0.1 # shock parameter
 par.R = (1 + 0.01) ** (1 / 12) # montly discount factor
-par.K = 100 # number of simulations for approximation
+par.K = 49 # number of simulations for approximation
 par.T = 120 # 10 years, 120 months
+par.Delta = 0.00 # change threshold
 
-
-# Q2.1
+# Q2.1, functions for discrete kappa
 def profit(par, kappa, l):
     """
     Calculate the profit given parameters kappa and labor input l.
@@ -48,8 +48,7 @@ def optimal_l(par, kappa):
 
 
 
-# Q2.2
-# Q2.2
+# Q2.2-Q2.5, functions for continuous kappa
 def generate_kappa(par, seed):
     """
     Generate the series of kappa_t values based on a given seed.
@@ -81,8 +80,16 @@ def calculate_lt(par, kappa):
     Returns:
     - lt_star: Numpy array of l_t values
     """
-    lt_star = ((1 - par.eta) * kappa / par.w)**(1 / par.eta)
-    return lt_star
+    l = np.empty(par.T)
+    l[0] = 0
+    l_star = np.empty(par.T)
+    for t in range(1, par.T):
+        l_star[t] = ((1 - par.eta) * kappa[t] / par.w)**(1 / par.eta)
+        if np.abs(l[t-1] - l_star[t]) > par.Delta:
+            l[t] = l_star[t]
+        else:
+            l[t] = l[t-1]    
+    return l
 
 
 def calculate_h(par, kappa, l):
@@ -100,6 +107,46 @@ def calculate_h(par, kappa, l):
     h = 0
     for t in range(par.T):
         h += par.R**(-t) * (kappa[t] * l[t]**(1 - par.eta) - par.w * l[t] - int(l[t] != l[t - 1]) * par.iota)
+    return h
+
+
+def calculate_h_extention(par, kappa, l):
+    """
+    Calculate the ex post value of h based on the kappa_t and l_t values.
+
+    Parameters:
+    - par: Namespace object containing the model parameters
+    - kappa: Numpy array of kappa_t values
+    - l: Numpy array of l_t values
+
+    Returns:
+    - h: Ex post value of h using the new policy with part time workers
+    """
+    h = 0
+    for t in range(par.T):
+        h += par.R**(-t) * (kappa[t] * l[t]**(1 - par.eta) - par.w * l[t] - (l[t] - l[t - 1]) * par.iota)
+    return h
+
+
+def function_call(par, seed, extention=False):
+    """
+    Calculate the value of h given the parameters and a seed through kappa and lt.
+
+    Args:
+        par (types.SimpleNamespace): Namespace containing the model parameters.
+        seed (int): Seed value for generating kappa.
+
+    Returns:
+        float: Value of h.
+
+    """
+    kappa = generate_kappa(par, seed)
+    l = calculate_lt(par, kappa)
+    
+    if extention==True:
+        h = calculate_h_extention(par, kappa, l)
+    if extention==False:
+        h = calculate_h(par, kappa, l)
     return h
 
 
